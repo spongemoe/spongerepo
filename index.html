@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lichter Aus – Mini-Logikspiel</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #111827;
+        --panel: #1f2937;
+        --accent: #22c55e;
+        --off: #334155;
+        --text: #f8fafc;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: radial-gradient(circle at top, #1e3a8a 0%, var(--bg) 50%);
+        color: var(--text);
+      }
+
+      .game {
+        width: min(92vw, 460px);
+        background: color-mix(in oklab, var(--panel), #000 10%);
+        border: 1px solid #334155;
+        border-radius: 16px;
+        padding: 1rem 1rem 1.25rem;
+        box-shadow: 0 20px 45px rgb(0 0 0 / 30%);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.25rem;
+        text-align: center;
+      }
+
+      p {
+        margin: 0.75rem 0 0.5rem;
+        text-align: center;
+        line-height: 1.35;
+      }
+
+      .hud {
+        margin-top: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+      }
+
+      button {
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 0.9rem;
+        background: #3b82f6;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button:hover {
+        filter: brightness(1.08);
+      }
+
+      .grid {
+        margin: 1rem auto;
+        width: fit-content;
+        display: grid;
+        grid-template-columns: repeat(5, 56px);
+        grid-template-rows: repeat(5, 56px);
+        gap: 8px;
+      }
+
+      .cell {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        border: 1px solid #475569;
+        background: var(--off);
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
+        transition: transform 0.07s ease, background 0.18s ease;
+      }
+
+      .cell.on {
+        background: var(--accent);
+        box-shadow: 0 0 12px rgb(34 197 94 / 55%), inset 0 0 10px rgb(255 255 255 / 15%);
+      }
+
+      .cell:active {
+        transform: scale(0.96);
+      }
+
+      .status {
+        text-align: center;
+        font-weight: 600;
+        min-height: 1.3rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="game">
+      <h1>Lichter Aus</h1>
+      <p>
+        Klicke auf ein Feld, um es und die direkten Nachbarn umzuschalten. Ziel:
+        Alle Lichter ausschalten.
+      </p>
+
+      <div class="hud">
+        <span>Züge: <strong id="moves">0</strong></span>
+        <button id="reset">Neu starten</button>
+      </div>
+
+      <section class="grid" id="grid" aria-label="Spielfeld"></section>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </main>
+
+    <script>
+      const SIZE = 5;
+      let board = Array.from({ length: SIZE }, () => Array(SIZE).fill(false));
+      let moves = 0;
+
+      const grid = document.getElementById('grid');
+      const movesEl = document.getElementById('moves');
+      const statusEl = document.getElementById('status');
+      const resetBtn = document.getElementById('reset');
+
+      function inBounds(r, c) {
+        return r >= 0 && r < SIZE && c >= 0 && c < SIZE;
+      }
+
+      function toggle(r, c) {
+        if (!inBounds(r, c)) return;
+        board[r][c] = !board[r][c];
+      }
+
+      function handleCellClick(r, c) {
+        toggle(r, c);
+        toggle(r - 1, c);
+        toggle(r + 1, c);
+        toggle(r, c - 1);
+        toggle(r, c + 1);
+        moves += 1;
+        render();
+        checkWin();
+      }
+
+      function boardCleared() {
+        return board.every((row) => row.every((cell) => !cell));
+      }
+
+      function checkWin() {
+        if (boardCleared()) {
+          statusEl.textContent = `Gewonnen in ${moves} Zügen! 🎉`;
+        } else {
+          statusEl.textContent = '';
+        }
+      }
+
+      function randomizeBoard() {
+        board = Array.from({ length: SIZE }, () =>
+          Array.from({ length: SIZE }, () => Math.random() > 0.5)
+        );
+        moves = 0;
+        statusEl.textContent = '';
+      }
+
+      function render() {
+        movesEl.textContent = String(moves);
+        grid.innerHTML = '';
+
+        board.forEach((row, r) => {
+          row.forEach((isOn, c) => {
+            const btn = document.createElement('button');
+            btn.className = `cell ${isOn ? 'on' : ''}`;
+            btn.setAttribute('aria-label', `Feld ${r + 1}, ${c + 1}`);
+            btn.addEventListener('click', () => handleCellClick(r, c));
+            grid.appendChild(btn);
+          });
+        });
+      }
+
+      resetBtn.addEventListener('click', () => {
+        randomizeBoard();
+        render();
+      });
+
+      randomizeBoard();
+      render();
+    </script>
+  </body>
+</html>
