@@ -1,6 +1,6 @@
 # Webbasierte 3D-Laderaumplanungssoftware
 
-Eine einfache, browserbasierte Anwendung zur Planung von LKW-Beladungen mit integrierter 3D-Visualisierung (ohne Build-Tool, direkt in `index.html`).
+Eine einfache, browserbasierte Anwendung zur Planung von LKW-Beladungen mit integrierter 3D-Vorschau direkt in `index.html`.
 
 ## Funktionen
 
@@ -11,7 +11,9 @@ Eine einfache, browserbasierte Anwendung zur Planung von LKW-Beladungen mit inte
   - Kollisionsfreiheit,
   - Laderaumgrenzen,
   - Stapelbarkeit/Nicht-Stapelbarkeit.
-- **Sofortige 3D-Darstellung** der platzierten Einheiten in einer isometrischen Ansicht.
+- **Geschlossene Pakete in der Vorschau** (vollflächig gezeichnete Boxen).
+- **Per Maus-Drag frei drehbare 3D-Ansicht**, damit die Beladung von allen Seiten geprüft werden kann.
+- **Rückgängig-Button** für die letzten Planungsschritte.
 - **Live-Kennzahlen** zu Gewicht, Volumenauslastung und nicht platzierbaren Einheiten.
 
 ## Starten
@@ -27,4 +29,5 @@ Dann öffnen: `http://localhost:8000/`
 1. LKW im Dropdown auswählen.
 2. Maße/Gewicht/Stapelregel eingeben.
 3. Auf **„Ladegut hinzufügen“** klicken.
-4. Das Paket erscheint sofort in der Visualisierung (wenn platzierbar).
+4. Mit gedrückter linker Maustaste in der Vorschau ziehen, um die Beladung zu drehen.
+5. Bei Bedarf über **„Rückgängig“** den letzten Schritt zurücknehmen.

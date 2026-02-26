@@ -5,37 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>3D-Laderaumplanung für LKW</title>
     <style>
-      :root { --bg:#0b1220; --panel:#121a2c; --panel-light:#1b2641; --text:#e5e7eb; --muted:#94a3b8; --accent:#22c55e; --warn:#f59e0b; --danger:#ef4444; }
-      * { box-sizing:border-box; }
-      body { margin:0; font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; color:var(--text); background:radial-gradient(circle at top,#111b32,var(--bg) 60%); }
-      .app { min-height:100vh; display:grid; grid-template-columns:minmax(300px,420px) 1fr; }
-      .sidebar { background:color-mix(in oklab,var(--panel),#000 12%); border-right:1px solid #24304e; padding:1rem; overflow:auto; }
-      .card { background:var(--panel-light); border:1px solid #2b3757; border-radius:12px; padding:.85rem; margin-bottom:.85rem; }
-      h1 { margin:0 0 .25rem; font-size:1.25rem; } h2 { margin:0 0 .6rem; font-size:.95rem; color:#cbd5e1; text-transform:uppercase; }
-      .sub { margin:0; color:var(--muted); line-height:1.35; }
-      .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:.55rem; }
-      label { display:block; font-size:.8rem; margin-bottom:.22rem; color:#cbd5e1; }
-      input,select,button { width:100%; border:1px solid #3b4a70; border-radius:9px; background:#0f1729; color:#e2e8f0; padding:.48rem .58rem; font:inherit; }
-      button { cursor:pointer; background:linear-gradient(180deg,#2563eb,#1d4ed8); border-color:#2d61cf; font-weight:600; }
-      button.secondary { background:linear-gradient(180deg,#374151,#1f2937); border-color:#4b5563; }
-      .actions { display:grid; grid-template-columns:1fr 1fr; gap:.55rem; margin-top:.55rem; }
-      .metrics { display:grid; gap:.4rem; font-size:.9rem; }
-      .pill { display:flex; justify-content:space-between; background:#0f1729; border:1px solid #334155; border-radius:8px; padding:.42rem .56rem; }
-      .ok { color:var(--accent); } .warn { color:var(--warn); } .danger { color:var(--danger); }
-      #cargo-list { margin:0; padding:0; list-style:none; display:grid; gap:.35rem; }
-      #cargo-list li { font-size:.84rem; background:#0f1729; border:1px solid #2d3b5d; border-radius:8px; padding:.4rem .5rem; }
-      #viewport { min-height:100vh; display:grid; place-items:center; padding:1rem; }
-      .canvas-wrap { width:min(100%,1100px); background:#0f1729; border:1px solid #2d3b5d; border-radius:12px; padding:.6rem; }
-      canvas { width:100%; height:min(80vh,760px); display:block; border-radius:10px; background:linear-gradient(180deg,#0d1426,#08101f); }
-      .hint { color:#93c5fd; font-size:.85rem; margin-top:.4rem; }
-      @media (max-width:980px){ .app { grid-template-columns:1fr; } #viewport { min-height:56vh; } }
+      :root {
+        --bg: #0b1220;
+        --panel: #121a2c;
+        --panel-light: #1b2641;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --accent: #22c55e;
+        --warn: #f59e0b;
+        --danger: #ef4444;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at top, #111b32, var(--bg) 60%);
+      }
+
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: minmax(320px, 430px) 1fr;
+      }
+
+      .sidebar {
+        background: color-mix(in oklab, var(--panel), #000 12%);
+        border-right: 1px solid #24304e;
+        padding: 1rem;
+        overflow: auto;
+      }
+
+      .card {
+        background: var(--panel-light);
+        border: 1px solid #2b3757;
+        border-radius: 12px;
+        padding: 0.85rem;
+        margin-bottom: 0.85rem;
+      }
+
+      h1 { margin: 0 0 0.25rem; font-size: 1.25rem; }
+      h2 { margin: 0 0 0.6rem; font-size: 0.95rem; color: #cbd5e1; text-transform: uppercase; }
+      .sub { margin: 0; color: var(--muted); line-height: 1.35; }
+
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+      label { display: block; font-size: 0.8rem; margin-bottom: 0.22rem; color: #cbd5e1; }
+
+      input, select, button {
+        width: 100%;
+        border: 1px solid #3b4a70;
+        border-radius: 9px;
+        background: #0f1729;
+        color: #e2e8f0;
+        padding: 0.48rem 0.58rem;
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+        background: linear-gradient(180deg, #2563eb, #1d4ed8);
+        border-color: #2d61cf;
+        font-weight: 600;
+      }
+
+      button.secondary {
+        background: linear-gradient(180deg, #374151, #1f2937);
+        border-color: #4b5563;
+      }
+
+      .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-top: 0.55rem; }
+      .actions.single { grid-template-columns: 1fr; }
+      .metrics { display: grid; gap: 0.4rem; font-size: 0.9rem; }
+      .pill { display: flex; justify-content: space-between; background: #0f1729; border: 1px solid #334155; border-radius: 8px; padding: 0.42rem 0.56rem; }
+      .ok { color: var(--accent); }
+      .warn { color: var(--warn); }
+      .danger { color: var(--danger); }
+
+      #cargo-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.35rem; }
+      #cargo-list li { font-size: 0.84rem; background: #0f1729; border: 1px solid #2d3b5d; border-radius: 8px; padding: 0.4rem 0.5rem; }
+
+      #viewport { min-height: 100vh; display: grid; place-items: center; padding: 1rem; }
+      .canvas-wrap { width: min(100%, 1120px); background: #0f1729; border: 1px solid #2d3b5d; border-radius: 12px; padding: 0.6rem; }
+      canvas { width: 100%; height: min(82vh, 780px); display: block; border-radius: 10px; background: linear-gradient(180deg, #0d1426, #08101f); }
+      .hint { color: #93c5fd; font-size: 0.85rem; margin-top: 0.4rem; }
+
+      @media (max-width: 980px) {
+        .app { grid-template-columns: 1fr; }
+        #viewport { min-height: 56vh; }
+      }
     </style>
   </head>
   <body>
     <main class="app">
       <aside class="sidebar">
-        <div class="card"><h1>3D-Laderaumplanung</h1><p class="sub">Wähle einen LKW, füge Ladeeinheiten hinzu und prüfe Gewichtsgrenzen und Stapelregeln. Die Beladung wird sofort visualisiert.</p></div>
-        <section class="card"><h2>1) LKW wählen</h2><label for="truck">LKW-Typ</label><select id="truck"></select></section>
+        <div class="card">
+          <h1>3D-Laderaumplanung</h1>
+          <p class="sub">Wähle einen LKW, füge Ladeeinheiten hinzu und prüfe Gewichtsgrenzen und Stapelregeln. Die Beladung ist per Maus-Drag frei drehbar.</p>
+        </div>
+
+        <section class="card">
+          <h2>1) LKW wählen</h2>
+          <label for="truck">LKW-Typ</label>
+          <select id="truck"></select>
+        </section>
+
         <section class="card">
           <h2>2) Ladegut anlegen</h2>
           <div class="grid-2">
@@ -46,113 +121,443 @@
             <div><label for="height">Höhe (m)</label><input id="height" type="number" step="0.1" min="0.2" value="1.2" /></div>
             <div><label for="stack">Max. stapelbar</label><input id="stack" type="number" min="1" value="2" /></div>
           </div>
-          <label style="margin-top:.55rem" for="nonStackable"><input id="nonStackable" type="checkbox" style="width:auto; margin-right:.35rem" />Nicht stapelbar</label>
-          <div class="actions"><button id="add">Ladegut hinzufügen</button><button class="secondary" id="fill">Mit Euro-Paletten füllen</button></div>
+          <label style="margin-top: 0.55rem" for="nonStackable">
+            <input id="nonStackable" type="checkbox" style="width: auto; margin-right: 0.35rem" />Nicht stapelbar
+          </label>
+          <div class="actions">
+            <button id="add">Ladegut hinzufügen</button>
+            <button class="secondary" id="fill">Mit Euro-Paletten füllen</button>
+          </div>
+          <div class="actions" style="margin-top:0.45rem;">
+            <button class="secondary" id="undo">Rückgängig</button>
+            <button class="secondary" id="reset">Planung zurücksetzen</button>
+          </div>
         </section>
-        <section class="card"><h2>3) Status</h2><div class="metrics" id="metrics"></div></section>
-        <section class="card"><h2>Ladeeinheiten</h2><ul id="cargo-list"></ul><div class="actions"><button class="secondary" id="reset">Planung zurücksetzen</button></div></section>
+
+        <section class="card">
+          <h2>3) Status</h2>
+          <div class="metrics" id="metrics"></div>
+        </section>
+
+        <section class="card">
+          <h2>Ladeeinheiten</h2>
+          <ul id="cargo-list"></ul>
+        </section>
       </aside>
-      <section id="viewport"><div class="canvas-wrap"><canvas id="scene"></canvas><div class="hint">Ansicht: isometrische 3D-Darstellung (Drag = nicht nötig; automatische Perspektive).</div></div></section>
+
+      <section id="viewport">
+        <div class="canvas-wrap">
+          <canvas id="scene"></canvas>
+          <div class="hint">Steuerung: Linke Maustaste gedrückt halten und ziehen, um die Vorschau aus allen Blickwinkeln zu drehen.</div>
+        </div>
+      </section>
     </main>
 
     <script>
-      const trucks=[
-        {id:'sattel-standard',name:'Sattelzug Standard (13,6 m)',l:13.6,w:2.45,h:2.7,maxPayload:24000},
-        {id:'sattel-mega',name:'Sattelzug Mega (13,6 m / 3,0 m innen)',l:13.6,w:2.48,h:3,maxPayload:24000},
-        {id:'wechsler-18',name:'Wechselbrücke 18 t',l:7.15,w:2.45,h:2.6,maxPayload:12000},
-        {id:'motorwagen',name:'Motorwagen 12 t',l:6.1,w:2.45,h:2.5,maxPayload:7000},
+      const trucks = [
+        { id: 'sattel-standard', name: 'Sattelzug Standard (13,6 m)', l: 13.6, w: 2.45, h: 2.7, maxPayload: 24000 },
+        { id: 'sattel-mega', name: 'Sattelzug Mega (13,6 m / 3,0 m innen)', l: 13.6, w: 2.48, h: 3, maxPayload: 24000 },
+        { id: 'wechsler-18', name: 'Wechselbrücke 18 t', l: 7.15, w: 2.45, h: 2.6, maxPayload: 12000 },
+        { id: 'motorwagen', name: 'Motorwagen 12 t', l: 6.1, w: 2.45, h: 2.5, maxPayload: 7000 },
       ];
-      const state={truck:trucks[0],items:[],placed:[]};
-      const els={truck:document.getElementById('truck'),name:document.getElementById('name'),weight:document.getElementById('weight'),length:document.getElementById('length'),width:document.getElementById('width'),height:document.getElementById('height'),stack:document.getElementById('stack'),nonStackable:document.getElementById('nonStackable'),add:document.getElementById('add'),fill:document.getElementById('fill'),reset:document.getElementById('reset'),metrics:document.getElementById('metrics'),cargoList:document.getElementById('cargo-list'),canvas:document.getElementById('scene')};
-      const ctx=els.canvas.getContext('2d');
 
-      function setupTruckSelect(){
-        els.truck.innerHTML='';
-        trucks.forEach((t)=>{ const o=document.createElement('option'); o.value=t.id; o.textContent=t.name; els.truck.appendChild(o); });
+      const state = {
+        truck: trucks[0],
+        items: [],
+        placed: [],
+        view: { yaw: -0.7, pitch: 0.45, distance: 18 },
+      };
+
+      const history = [];
+
+      const els = {
+        truck: document.getElementById('truck'),
+        name: document.getElementById('name'),
+        weight: document.getElementById('weight'),
+        length: document.getElementById('length'),
+        width: document.getElementById('width'),
+        height: document.getElementById('height'),
+        stack: document.getElementById('stack'),
+        nonStackable: document.getElementById('nonStackable'),
+        add: document.getElementById('add'),
+        fill: document.getElementById('fill'),
+        undo: document.getElementById('undo'),
+        reset: document.getElementById('reset'),
+        metrics: document.getElementById('metrics'),
+        cargoList: document.getElementById('cargo-list'),
+        canvas: document.getElementById('scene'),
+      };
+
+      const ctx = els.canvas.getContext('2d');
+
+      function cloneItems(items) {
+        return items.map((item) => ({ ...item }));
       }
-      function collides(a,b){ return Math.abs(a.x-b.x)*2<a.l+b.l && Math.abs(a.y-b.y)*2<a.h+b.h && Math.abs(a.z-b.z)*2<a.w+b.w; }
-      function canBePlaced(item,pos,placements,totalWeight){
-        const {l,w,h,maxPayload}=state.truck;
-        if(pos.x-item.l/2<-l/2||pos.x+item.l/2>l/2) return false;
-        if(pos.z-item.w/2<-w/2||pos.z+item.w/2>w/2) return false;
-        if(pos.y+item.h/2>h) return false;
-        if(totalWeight+item.weight>maxPayload) return false;
-        const c={...item,...pos};
-        if(placements.some((p)=>collides(c,p))) return false;
-        if(pos.y>item.h/2+0.01){
-          const support=placements.find((p)=>{
-            const top=p.y+p.h/2;
-            return Math.abs(top-(pos.y-item.h/2))<0.06 && Math.abs(p.x-pos.x)*2<p.l+item.l-0.05 && Math.abs(p.z-pos.z)*2<p.w+item.w-0.05;
-          });
-          if(!support||support.nonStackable) return false;
-          const stackLevel=placements.filter((p)=>Math.abs(p.x-support.x)<0.05 && Math.abs(p.z-support.z)<0.05 && p.y<=support.y).length;
-          if(stackLevel>=support.maxStack) return false;
+
+      function saveHistory() {
+        history.push({
+          truckId: state.truck.id,
+          items: cloneItems(state.items),
+        });
+        if (history.length > 100) history.shift();
+      }
+
+      function restoreFromSnapshot(snapshot) {
+        const truck = trucks.find((t) => t.id === snapshot.truckId);
+        if (truck) {
+          state.truck = truck;
+          els.truck.value = truck.id;
         }
+        state.items = cloneItems(snapshot.items);
+        recomputePlan();
+      }
+
+      function handleUndo() {
+        const snapshot = history.pop();
+        if (!snapshot) return;
+        restoreFromSnapshot(snapshot);
+      }
+
+      function setupTruckSelect() {
+        els.truck.innerHTML = '';
+        trucks.forEach((truck) => {
+          const option = document.createElement('option');
+          option.value = truck.id;
+          option.textContent = truck.name;
+          els.truck.appendChild(option);
+        });
+      }
+
+      function collides(a, b) {
+        return (
+          Math.abs(a.x - b.x) * 2 < a.l + b.l &&
+          Math.abs(a.y - b.y) * 2 < a.h + b.h &&
+          Math.abs(a.z - b.z) * 2 < a.w + b.w
+        );
+      }
+
+      function canBePlaced(item, pos, placements, totalWeight) {
+        const { l, w, h, maxPayload } = state.truck;
+
+        if (pos.x - item.l / 2 < -l / 2 || pos.x + item.l / 2 > l / 2) return false;
+        if (pos.z - item.w / 2 < -w / 2 || pos.z + item.w / 2 > w / 2) return false;
+        if (pos.y + item.h / 2 > h) return false;
+        if (totalWeight + item.weight > maxPayload) return false;
+
+        const candidate = { ...item, ...pos };
+        if (placements.some((p) => collides(candidate, p))) return false;
+
+        if (pos.y > item.h / 2 + 0.01) {
+          const support = placements.find((p) => {
+            const top = p.y + p.h / 2;
+            return (
+              Math.abs(top - (pos.y - item.h / 2)) < 0.06 &&
+              Math.abs(p.x - pos.x) * 2 < p.l + item.l - 0.05 &&
+              Math.abs(p.z - pos.z) * 2 < p.w + item.w - 0.05
+            );
+          });
+
+          if (!support || support.nonStackable) return false;
+
+          const stackLevel = placements.filter(
+            (p) => Math.abs(p.x - support.x) < 0.05 && Math.abs(p.z - support.z) < 0.05 && p.y <= support.y
+          ).length;
+          if (stackLevel >= support.maxStack) return false;
+        }
+
         return true;
       }
-      function autoPlaceItems(items){
-        const placements=[]; let totalWeight=0; const {l,w,h}=state.truck;
-        for(const item of [...items].sort((a,b)=>b.weight-a.weight)){
-          let placed=false; const xs=Math.max(0.2,Math.min(item.l,0.6)), zs=Math.max(0.2,Math.min(item.w,0.6)), ys=Math.max(0.2,Math.min(item.h,0.6));
-          for(let y=item.h/2;y<=h-item.h/2+0.001&&!placed;y+=ys){
-            for(let x=-l/2+item.l/2;x<=l/2-item.l/2+0.001&&!placed;x+=xs){
-              for(let z=-w/2+item.w/2;z<=w/2-item.w/2+0.001&&!placed;z+=zs){
-                const pos={x:+x.toFixed(3),y:+y.toFixed(3),z:+z.toFixed(3)};
-                if(canBePlaced(item,pos,placements,totalWeight)){ placements.push({...item,...pos}); totalWeight+=item.weight; placed=true; }
+
+      function autoPlaceItems(items) {
+        const placements = [];
+        let totalWeight = 0;
+        const { l, w, h } = state.truck;
+
+        for (const item of [...items].sort((a, b) => b.weight - a.weight)) {
+          let placed = false;
+          const xStep = Math.max(0.2, Math.min(item.l, 0.6));
+          const zStep = Math.max(0.2, Math.min(item.w, 0.6));
+          const yStep = Math.max(0.2, Math.min(item.h, 0.6));
+
+          for (let y = item.h / 2; y <= h - item.h / 2 + 0.001 && !placed; y += yStep) {
+            for (let x = -l / 2 + item.l / 2; x <= l / 2 - item.l / 2 + 0.001 && !placed; x += xStep) {
+              for (let z = -w / 2 + item.w / 2; z <= w / 2 - item.w / 2 + 0.001 && !placed; z += zStep) {
+                const pos = { x: +x.toFixed(3), y: +y.toFixed(3), z: +z.toFixed(3) };
+                if (canBePlaced(item, pos, placements, totalWeight)) {
+                  placements.push({ ...item, ...pos });
+                  totalWeight += item.weight;
+                  placed = true;
+                }
               }
             }
           }
         }
+
         return placements;
       }
-      function formatKg(v){ return `${Math.round(v).toLocaleString('de-DE')} kg`; }
-      function updateMetrics(){
-        const usedWeight=state.placed.reduce((s,i)=>s+i.weight,0), wr=usedWeight/state.truck.maxPayload;
-        const vol=state.truck.l*state.truck.w*state.truck.h, usedVol=state.placed.reduce((s,i)=>s+i.l*i.w*i.h,0), vr=usedVol/vol;
-        const notPlaced=state.items.length-state.placed.length;
-        els.metrics.innerHTML=`<div class="pill"><span>Nutzlast</span><strong class="${wr>1?'danger':wr>.85?'warn':'ok'}">${formatKg(usedWeight)} / ${formatKg(state.truck.maxPayload)}</strong></div>
-        <div class="pill"><span>Volumen</span><strong class="${vr>.92?'warn':'ok'}">${(vr*100).toFixed(1)}%</strong></div>
-        <div class="pill"><span>Geladen</span><strong class="ok">${state.placed.length} / ${state.items.length}</strong></div>
-        <div class="pill"><span>Nicht platzierbar</span><strong class="${notPlaced?'warn':'ok'}">${notPlaced}</strong></div>`;
+
+      function formatKg(v) {
+        return `${Math.round(v).toLocaleString('de-DE')} kg`;
       }
-      function updateCargoList(){
-        els.cargoList.innerHTML='';
-        state.items.forEach((it,i)=>{ const li=document.createElement('li'); li.textContent=`${i+1}. ${it.name}: ${it.l}×${it.w}×${it.h} m, ${formatKg(it.weight)}, Stapelbar: ${it.nonStackable?'Nein':`bis ${it.maxStack} Ebenen`}`; els.cargoList.appendChild(li); });
+
+      function updateMetrics() {
+        const usedWeight = state.placed.reduce((s, i) => s + i.weight, 0);
+        const weightRatio = usedWeight / state.truck.maxPayload;
+        const volume = state.truck.l * state.truck.w * state.truck.h;
+        const usedVolume = state.placed.reduce((s, i) => s + i.l * i.w * i.h, 0);
+        const volRatio = usedVolume / volume;
+        const notPlaced = state.items.length - state.placed.length;
+
+        els.metrics.innerHTML = `
+          <div class="pill"><span>Nutzlast</span><strong class="${weightRatio > 1 ? 'danger' : weightRatio > 0.85 ? 'warn' : 'ok'}">${formatKg(usedWeight)} / ${formatKg(state.truck.maxPayload)}</strong></div>
+          <div class="pill"><span>Volumen</span><strong class="${volRatio > 0.92 ? 'warn' : 'ok'}">${(volRatio * 100).toFixed(1)}%</strong></div>
+          <div class="pill"><span>Geladen</span><strong class="ok">${state.placed.length} / ${state.items.length}</strong></div>
+          <div class="pill"><span>Nicht platzierbar</span><strong class="${notPlaced ? 'warn' : 'ok'}">${notPlaced}</strong></div>
+        `;
       }
-      function resizeCanvas(){ const r=els.canvas.getBoundingClientRect(); els.canvas.width=Math.floor(r.width*devicePixelRatio); els.canvas.height=Math.floor(r.height*devicePixelRatio); ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
-      function project(x,y,z,scale,ox,oy){ return {x:ox + (x-z)*scale, y:oy + (x+z)*scale*0.45 - y*scale}; }
-      function drawBox(item,scale,ox,oy,color){
-        const x=item.x, y=item.y-item.h/2, z=item.z, L=item.l, W=item.w, H=item.h;
-        const p000=project(x-L/2,y,z-W/2,scale,ox,oy), p100=project(x+L/2,y,z-W/2,scale,ox,oy), p110=project(x+L/2,y,z+W/2,scale,ox,oy), p010=project(x-L/2,y,z+W/2,scale,ox,oy);
-        const p001=project(x-L/2,y+H,z-W/2,scale,ox,oy), p101=project(x+L/2,y+H,z-W/2,scale,ox,oy), p111=project(x+L/2,y+H,z+W/2,scale,ox,oy), p011=project(x-L/2,y+H,z+W/2,scale,ox,oy);
-        ctx.beginPath(); ctx.moveTo(p001.x,p001.y); ctx.lineTo(p101.x,p101.y); ctx.lineTo(p111.x,p111.y); ctx.lineTo(p011.x,p011.y); ctx.closePath(); ctx.fillStyle=color.top; ctx.fill();
-        ctx.beginPath(); ctx.moveTo(p001.x,p001.y); ctx.lineTo(p011.x,p011.y); ctx.lineTo(p010.x,p010.y); ctx.lineTo(p000.x,p000.y); ctx.closePath(); ctx.fillStyle=color.left; ctx.fill();
-        ctx.beginPath(); ctx.moveTo(p101.x,p101.y); ctx.lineTo(p111.x,p111.y); ctx.lineTo(p110.x,p110.y); ctx.lineTo(p100.x,p100.y); ctx.closePath(); ctx.fillStyle=color.right; ctx.fill();
+
+      function updateCargoList() {
+        els.cargoList.innerHTML = '';
+        state.items.forEach((item, idx) => {
+          const li = document.createElement('li');
+          li.textContent = `${idx + 1}. ${item.name}: ${item.l}×${item.w}×${item.h} m, ${formatKg(item.weight)}, Stapelbar: ${item.nonStackable ? 'Nein' : `bis ${item.maxStack} Ebenen`}`;
+          els.cargoList.appendChild(li);
+        });
       }
-      function drawScene(){
-        const w=els.canvas.clientWidth, h=els.canvas.clientHeight; ctx.clearRect(0,0,w,h);
-        const scale=Math.min((w*0.58)/state.truck.l,(h*0.5)/state.truck.h,120), ox=w*0.52, oy=h*0.82;
-        const floor=[project(-state.truck.l/2,0,-state.truck.w/2,scale,ox,oy),project(state.truck.l/2,0,-state.truck.w/2,scale,ox,oy),project(state.truck.l/2,0,state.truck.w/2,scale,ox,oy),project(-state.truck.l/2,0,state.truck.w/2,scale,ox,oy)];
-        ctx.beginPath(); ctx.moveTo(floor[0].x,floor[0].y); floor.slice(1).forEach((p)=>ctx.lineTo(p.x,p.y)); ctx.closePath(); ctx.fillStyle='rgba(37,99,235,.12)'; ctx.fill(); ctx.strokeStyle='#60a5fa'; ctx.stroke();
-        const palette=[{top:'#34d399',left:'#10b981',right:'#059669'},{top:'#fb923c',left:'#f97316',right:'#ea580c'},{top:'#a78bfa',left:'#8b5cf6',right:'#7c3aed'},{top:'#22d3ee',left:'#06b6d4',right:'#0891b2'}];
-        [...state.placed].sort((a,b)=>(a.x+a.z+a.y)-(b.x+b.z+b.y)).forEach((it,i)=>drawBox(it,scale,ox,oy,palette[i%palette.length]));
-        ctx.fillStyle='#bfdbfe'; ctx.font='600 14px Inter, sans-serif'; ctx.fillText(`${state.truck.name}`,20,26); ctx.fillText(`Laderaum: ${state.truck.l} × ${state.truck.w} × ${state.truck.h} m`,20,48);
+
+      function resizeCanvas() {
+        const ratio = window.devicePixelRatio || 1;
+        const rect = els.canvas.getBoundingClientRect();
+        els.canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+        els.canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       }
-      function recomputePlan(){ state.placed=autoPlaceItems(state.items); updateMetrics(); updateCargoList(); drawScene(); }
-      function readItemForm(){
-        const item={name:els.name.value.trim()||'Ladegut',weight:+els.weight.value,l:+els.length.value,w:+els.width.value,h:+els.height.value,maxStack:Math.max(1,+els.stack.value||1),nonStackable:els.nonStackable.checked};
-        if([item.weight,item.l,item.w,item.h].some((v)=>!Number.isFinite(v)||v<=0)){ alert('Bitte gültige positive Zahlen eingeben.'); return null; }
+
+      function rotatePoint(point) {
+        const { yaw, pitch } = state.view;
+        const cy = Math.cos(yaw);
+        const sy = Math.sin(yaw);
+        const cp = Math.cos(pitch);
+        const sp = Math.sin(pitch);
+
+        const x1 = point.x * cy - point.z * sy;
+        const z1 = point.x * sy + point.z * cy;
+
+        const y2 = point.y * cp - z1 * sp;
+        const z2 = point.y * sp + z1 * cp;
+
+        return { x: x1, y: y2, z: z2 };
+      }
+
+      function projectPoint(point, scale, originX, originY) {
+        const distance = state.view.distance;
+        const perspective = distance / (distance + point.z + 20);
+        return {
+          x: originX + point.x * scale * perspective,
+          y: originY - point.y * scale * perspective,
+          z: point.z,
+          perspective,
+        };
+      }
+
+      function shadeColor(hex, factor) {
+        const val = hex.replace('#', '');
+        const r = parseInt(val.slice(0, 2), 16);
+        const g = parseInt(val.slice(2, 4), 16);
+        const b = parseInt(val.slice(4, 6), 16);
+        const nr = Math.max(0, Math.min(255, Math.round(r * factor)));
+        const ng = Math.max(0, Math.min(255, Math.round(g * factor)));
+        const nb = Math.max(0, Math.min(255, Math.round(b * factor)));
+        return `rgb(${nr} ${ng} ${nb})`;
+      }
+
+      function createBoxFaces(item, color) {
+        const cx = item.x;
+        const cy = item.y;
+        const cz = item.z;
+        const lx = item.l / 2;
+        const hy = item.h / 2;
+        const wz = item.w / 2;
+
+        const v = [
+          { x: cx - lx, y: cy - hy, z: cz - wz },
+          { x: cx + lx, y: cy - hy, z: cz - wz },
+          { x: cx + lx, y: cy + hy, z: cz - wz },
+          { x: cx - lx, y: cy + hy, z: cz - wz },
+          { x: cx - lx, y: cy - hy, z: cz + wz },
+          { x: cx + lx, y: cy - hy, z: cz + wz },
+          { x: cx + lx, y: cy + hy, z: cz + wz },
+          { x: cx - lx, y: cy + hy, z: cz + wz },
+        ];
+
+        return [
+          { idx: [0, 1, 2, 3], color: shadeColor(color, 0.9) },
+          { idx: [4, 5, 6, 7], color: shadeColor(color, 1.1) },
+          { idx: [0, 4, 7, 3], color: shadeColor(color, 0.8) },
+          { idx: [1, 5, 6, 2], color: shadeColor(color, 0.75) },
+          { idx: [3, 2, 6, 7], color: shadeColor(color, 1.0) },
+          { idx: [0, 1, 5, 4], color: shadeColor(color, 0.65) },
+        ].map((face) => ({ ...face, v }));
+      }
+
+      function drawFace(points, fillStyle, strokeStyle = 'rgba(15 23 42 / 0.7)') {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y);
+        ctx.closePath();
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      function drawScene() {
+        const width = els.canvas.clientWidth;
+        const height = els.canvas.clientHeight;
+        ctx.clearRect(0, 0, width, height);
+
+        const scale = Math.min((width * 0.55) / state.truck.l, (height * 0.6) / state.truck.h, 120);
+        const originX = width * 0.5;
+        const originY = height * 0.68;
+
+        const truckBox = { x: 0, y: state.truck.h / 2, z: 0, l: state.truck.l, h: state.truck.h, w: state.truck.w };
+        const paintList = [];
+
+        createBoxFaces(truckBox, '#3b82f6').forEach((face) => {
+          const points3D = face.idx.map((i) => rotatePoint(face.v[i]));
+          const cross = (points3D[1].x - points3D[0].x) * (points3D[2].y - points3D[0].y) - (points3D[1].y - points3D[0].y) * (points3D[2].x - points3D[0].x);
+          if (cross < 0) return;
+          const points2D = points3D.map((p) => projectPoint(p, scale, originX, originY));
+          const depth = points3D.reduce((s, p) => s + p.z, 0) / points3D.length;
+          paintList.push({ points2D, depth, color: face.color, alpha: 0.13 });
+        });
+
+        const palette = ['#22c55e', '#f97316', '#8b5cf6', '#06b6d4', '#f43f5e', '#eab308'];
+
+        state.placed.forEach((item, index) => {
+          createBoxFaces(item, palette[index % palette.length]).forEach((face) => {
+            const points3D = face.idx.map((i) => rotatePoint(face.v[i]));
+            const cross = (points3D[1].x - points3D[0].x) * (points3D[2].y - points3D[0].y) - (points3D[1].y - points3D[0].y) * (points3D[2].x - points3D[0].x);
+            if (cross < 0) return;
+            const points2D = points3D.map((p) => projectPoint(p, scale, originX, originY));
+            const depth = points3D.reduce((s, p) => s + p.z, 0) / points3D.length;
+            paintList.push({ points2D, depth, color: face.color, alpha: 1 });
+          });
+        });
+
+        paintList.sort((a, b) => a.depth - b.depth);
+        paintList.forEach((face) => {
+          const fill = face.color.startsWith('rgb') ? face.color : face.color;
+          ctx.save();
+          ctx.globalAlpha = face.alpha;
+          drawFace(face.points2D, fill);
+          ctx.restore();
+        });
+
+        ctx.fillStyle = '#bfdbfe';
+        ctx.font = '600 14px Inter, sans-serif';
+        ctx.fillText(state.truck.name, 20, 28);
+        ctx.fillText(`Laderaum: ${state.truck.l} × ${state.truck.w} × ${state.truck.h} m`, 20, 50);
+      }
+
+      function recomputePlan() {
+        state.placed = autoPlaceItems(state.items);
+        updateMetrics();
+        updateCargoList();
+        drawScene();
+      }
+
+      function readItemForm() {
+        const item = {
+          name: els.name.value.trim() || 'Ladegut',
+          weight: Number(els.weight.value),
+          l: Number(els.length.value),
+          w: Number(els.width.value),
+          h: Number(els.height.value),
+          maxStack: Math.max(1, Number(els.stack.value || 1)),
+          nonStackable: els.nonStackable.checked,
+        };
+
+        if ([item.weight, item.l, item.w, item.h].some((v) => !Number.isFinite(v) || v <= 0)) {
+          window.alert('Bitte gültige positive Zahlen eingeben.');
+          return null;
+        }
         return item;
       }
-      function setTruckById(id){ const t=trucks.find((x)=>x.id===id); if(!t) return; state.truck=t; recomputePlan(); }
-      els.truck.addEventListener('change',(e)=>setTruckById(e.target.value));
-      els.add.addEventListener('click',()=>{ const item=readItemForm(); if(!item) return; state.items.push(item); recomputePlan(); });
-      els.fill.addEventListener('click',()=>{ const euro={name:'Euro-Palette',weight:550,l:1.2,w:0.8,h:1.25,maxStack:2,nonStackable:false}; state.items=Array.from({length:34},()=>({...euro})); recomputePlan(); });
-      els.reset.addEventListener('click',()=>{ state.items=[]; recomputePlan(); });
-      window.addEventListener('resize',()=>{ resizeCanvas(); drawScene(); });
+
+      function setTruckById(id) {
+        const truck = trucks.find((t) => t.id === id);
+        if (!truck) return;
+        state.truck = truck;
+        recomputePlan();
+      }
+
+      function bindViewDrag() {
+        const drag = { active: false, x: 0, y: 0 };
+
+        els.canvas.addEventListener('mousedown', (event) => {
+          drag.active = true;
+          drag.x = event.clientX;
+          drag.y = event.clientY;
+        });
+
+        window.addEventListener('mouseup', () => {
+          drag.active = false;
+        });
+
+        window.addEventListener('mousemove', (event) => {
+          if (!drag.active) return;
+          const dx = event.clientX - drag.x;
+          const dy = event.clientY - drag.y;
+          drag.x = event.clientX;
+          drag.y = event.clientY;
+
+          state.view.yaw += dx * 0.01;
+          state.view.pitch = Math.max(-1.3, Math.min(1.3, state.view.pitch + dy * 0.01));
+          drawScene();
+        });
+      }
+
+      function bindEvents() {
+        els.truck.addEventListener('change', (event) => {
+          saveHistory();
+          setTruckById(event.target.value);
+        });
+
+        els.add.addEventListener('click', () => {
+          const item = readItemForm();
+          if (!item) return;
+          saveHistory();
+          state.items.push(item);
+          recomputePlan();
+        });
+
+        els.fill.addEventListener('click', () => {
+          saveHistory();
+          const euro = { name: 'Euro-Palette', weight: 550, l: 1.2, w: 0.8, h: 1.25, maxStack: 2, nonStackable: false };
+          state.items = Array.from({ length: 34 }, () => ({ ...euro }));
+          recomputePlan();
+        });
+
+        els.reset.addEventListener('click', () => {
+          saveHistory();
+          state.items = [];
+          recomputePlan();
+        });
+
+        els.undo.addEventListener('click', handleUndo);
+
+        window.addEventListener('resize', () => {
+          resizeCanvas();
+          drawScene();
+        });
+      }
 
       setupTruckSelect();
-      els.truck.value=trucks[0].id;
+      bindEvents();
+      bindViewDrag();
+      els.truck.value = trucks[0].id;
       resizeCanvas();
       setTruckById(trucks[0].id);
     </script>
