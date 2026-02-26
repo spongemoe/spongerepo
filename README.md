@@ -12,7 +12,7 @@ Eine einfache, browserbasierte Anwendung zur Planung von LKW-Beladungen mit inte
   - Laderaumgrenzen,
   - Stapelbarkeit/Nicht-Stapelbarkeit.
 - **Geschlossene Pakete in der Vorschau** (vollflächig gezeichnete Boxen).
-- **Per Maus-Drag frei drehbare 3D-Ansicht**, damit die Beladung von allen Seiten geprüft werden kann.
+- **Per Maus-Drag frei drehbare 3D-Ansicht** mit **Zoom per Mausrad/Trackpad**, damit die Beladung von allen Seiten geprüft werden kann.
 - **Rückgängig-Button** für die letzten Planungsschritte.
 - **Live-Kennzahlen** zu Gewicht, Volumenauslastung und nicht platzierbaren Einheiten.
 
@@ -30,4 +30,5 @@ Dann öffnen: `http://localhost:8000/`
 2. Maße/Gewicht/Stapelregel eingeben.
 3. Auf **„Ladegut hinzufügen“** klicken.
 4. Mit gedrückter linker Maustaste in der Vorschau ziehen, um die Beladung zu drehen.
-5. Bei Bedarf über **„Rückgängig“** den letzten Schritt zurücknehmen.
+5. Mit Mausrad/Trackpad in die Vorschau hinein- und herauszoomen.
+6. Bei Bedarf über **„Rückgängig“** den letzten Schritt zurücknehmen.

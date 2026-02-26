@@ -102,7 +102,7 @@
       <aside class="sidebar">
         <div class="card">
           <h1>3D-Laderaumplanung</h1>
-          <p class="sub">Wähle einen LKW, füge Ladeeinheiten hinzu und prüfe Gewichtsgrenzen und Stapelregeln. Die Beladung ist per Maus-Drag frei drehbar.</p>
+          <p class="sub">Wähle einen LKW, füge Ladeeinheiten hinzu und prüfe Gewichtsgrenzen und Stapelregeln. Die Beladung ist per Maus-Drag frei drehbar und per Mausrad zoombar.</p>
         </div>
 
         <section class="card">
@@ -148,7 +148,7 @@
       <section id="viewport">
         <div class="canvas-wrap">
           <canvas id="scene"></canvas>
-          <div class="hint">Steuerung: Linke Maustaste gedrückt halten und ziehen, um die Vorschau aus allen Blickwinkeln zu drehen.</div>
+          <div class="hint">Steuerung: Linke Maustaste ziehen = drehen, Mausrad/Trackpad = rein- und rauszoomen.</div>
         </div>
       </section>
     </main>
@@ -165,7 +165,7 @@
         truck: trucks[0],
         items: [],
         placed: [],
-        view: { yaw: -0.7, pitch: 0.45, distance: 18 },
+        view: { yaw: -0.7, pitch: 0.45, distance: 18, zoom: 1 },
       };
 
       const history = [];
@@ -417,7 +417,8 @@
         const height = els.canvas.clientHeight;
         ctx.clearRect(0, 0, width, height);
 
-        const scale = Math.min((width * 0.55) / state.truck.l, (height * 0.6) / state.truck.h, 120);
+        const baseScale = Math.min((width * 0.55) / state.truck.l, (height * 0.6) / state.truck.h, 120);
+        const scale = baseScale * state.view.zoom;
         const originX = width * 0.5;
         const originY = height * 0.68;
 
@@ -519,6 +520,15 @@
         });
       }
 
+      function bindZoom() {
+        els.canvas.addEventListener('wheel', (event) => {
+          event.preventDefault();
+          const zoomFactor = event.deltaY < 0 ? 1.08 : 0.92;
+          state.view.zoom = Math.max(0.45, Math.min(2.8, state.view.zoom * zoomFactor));
+          drawScene();
+        }, { passive: false });
+      }
+
       function bindEvents() {
         els.truck.addEventListener('change', (event) => {
           saveHistory();
@@ -557,6 +567,7 @@
       setupTruckSelect();
       bindEvents();
       bindViewDrag();
+      bindZoom();
       els.truck.value = trucks[0].id;
       resizeCanvas();
       setTruckById(trucks[0].id);
