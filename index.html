@@ -3,195 +3,574 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lichter Aus – Mini-Logikspiel</title>
+    <title>3D-Laderaumplanung für LKW</title>
     <style>
       :root {
-        color-scheme: light dark;
-        --bg: #111827;
-        --panel: #1f2937;
+        --bg: #0b1220;
+        --panel: #121a2c;
+        --panel-light: #1b2641;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
         --accent: #22c55e;
-        --off: #334155;
-        --text: #f8fafc;
+        --warn: #f59e0b;
+        --danger: #ef4444;
       }
+
+      * { box-sizing: border-box; }
 
       body {
         margin: 0;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at top, #111b32, var(--bg) 60%);
+      }
+
+      .app {
         min-height: 100vh;
         display: grid;
-        place-items: center;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: radial-gradient(circle at top, #1e3a8a 0%, var(--bg) 50%);
-        color: var(--text);
+        grid-template-columns: minmax(320px, 430px) 1fr;
       }
 
-      .game {
-        width: min(92vw, 460px);
-        background: color-mix(in oklab, var(--panel), #000 10%);
-        border: 1px solid #334155;
-        border-radius: 16px;
-        padding: 1rem 1rem 1.25rem;
-        box-shadow: 0 20px 45px rgb(0 0 0 / 30%);
+      .sidebar {
+        background: color-mix(in oklab, var(--panel), #000 12%);
+        border-right: 1px solid #24304e;
+        padding: 1rem;
+        overflow: auto;
       }
 
-      h1 {
-        margin: 0;
-        font-size: 1.25rem;
-        text-align: center;
+      .card {
+        background: var(--panel-light);
+        border: 1px solid #2b3757;
+        border-radius: 12px;
+        padding: 0.85rem;
+        margin-bottom: 0.85rem;
       }
 
-      p {
-        margin: 0.75rem 0 0.5rem;
-        text-align: center;
-        line-height: 1.35;
-      }
+      h1 { margin: 0 0 0.25rem; font-size: 1.25rem; }
+      h2 { margin: 0 0 0.6rem; font-size: 0.95rem; color: #cbd5e1; text-transform: uppercase; }
+      .sub { margin: 0; color: var(--muted); line-height: 1.35; }
 
-      .hud {
-        margin-top: 0.8rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.95rem;
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+      label { display: block; font-size: 0.8rem; margin-bottom: 0.22rem; color: #cbd5e1; }
+
+      input, select, button {
+        width: 100%;
+        border: 1px solid #3b4a70;
+        border-radius: 9px;
+        background: #0f1729;
+        color: #e2e8f0;
+        padding: 0.48rem 0.58rem;
+        font: inherit;
       }
 
       button {
-        border: none;
-        border-radius: 10px;
-        padding: 0.55rem 0.9rem;
-        background: #3b82f6;
-        color: white;
-        font-weight: 600;
         cursor: pointer;
-      }
-
-      button:hover {
-        filter: brightness(1.08);
-      }
-
-      .grid {
-        margin: 1rem auto;
-        width: fit-content;
-        display: grid;
-        grid-template-columns: repeat(5, 56px);
-        grid-template-rows: repeat(5, 56px);
-        gap: 8px;
-      }
-
-      .cell {
-        width: 56px;
-        height: 56px;
-        border-radius: 10px;
-        border: 1px solid #475569;
-        background: var(--off);
-        box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
-        transition: transform 0.07s ease, background 0.18s ease;
-      }
-
-      .cell.on {
-        background: var(--accent);
-        box-shadow: 0 0 12px rgb(34 197 94 / 55%), inset 0 0 10px rgb(255 255 255 / 15%);
-      }
-
-      .cell:active {
-        transform: scale(0.96);
-      }
-
-      .status {
-        text-align: center;
+        background: linear-gradient(180deg, #2563eb, #1d4ed8);
+        border-color: #2d61cf;
         font-weight: 600;
-        min-height: 1.3rem;
+      }
+
+      button.secondary {
+        background: linear-gradient(180deg, #374151, #1f2937);
+        border-color: #4b5563;
+      }
+
+      .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-top: 0.55rem; }
+      .actions.single { grid-template-columns: 1fr; }
+      .metrics { display: grid; gap: 0.4rem; font-size: 0.9rem; }
+      .pill { display: flex; justify-content: space-between; background: #0f1729; border: 1px solid #334155; border-radius: 8px; padding: 0.42rem 0.56rem; }
+      .ok { color: var(--accent); }
+      .warn { color: var(--warn); }
+      .danger { color: var(--danger); }
+
+      #cargo-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.35rem; }
+      #cargo-list li { font-size: 0.84rem; background: #0f1729; border: 1px solid #2d3b5d; border-radius: 8px; padding: 0.4rem 0.5rem; }
+
+      #viewport { min-height: 100vh; display: grid; place-items: center; padding: 1rem; }
+      .canvas-wrap { width: min(100%, 1120px); background: #0f1729; border: 1px solid #2d3b5d; border-radius: 12px; padding: 0.6rem; }
+      canvas { width: 100%; height: min(82vh, 780px); display: block; border-radius: 10px; background: linear-gradient(180deg, #0d1426, #08101f); }
+      .hint { color: #93c5fd; font-size: 0.85rem; margin-top: 0.4rem; }
+
+      @media (max-width: 980px) {
+        .app { grid-template-columns: 1fr; }
+        #viewport { min-height: 56vh; }
       }
     </style>
   </head>
   <body>
-    <main class="game">
-      <h1>Lichter Aus</h1>
-      <p>
-        Klicke auf ein Feld, um es und die direkten Nachbarn umzuschalten. Ziel:
-        Alle Lichter ausschalten.
-      </p>
+    <main class="app">
+      <aside class="sidebar">
+        <div class="card">
+          <h1>3D-Laderaumplanung</h1>
+          <p class="sub">Wähle einen LKW, füge Ladeeinheiten hinzu und prüfe Gewichtsgrenzen und Stapelregeln. Die Beladung ist per Maus-Drag frei drehbar und per Mausrad zoombar.</p>
+        </div>
 
-      <div class="hud">
-        <span>Züge: <strong id="moves">0</strong></span>
-        <button id="reset">Neu starten</button>
-      </div>
+        <section class="card">
+          <h2>1) LKW wählen</h2>
+          <label for="truck">LKW-Typ</label>
+          <select id="truck"></select>
+        </section>
 
-      <section class="grid" id="grid" aria-label="Spielfeld"></section>
-      <p class="status" id="status" role="status" aria-live="polite"></p>
+        <section class="card">
+          <h2>2) Ladegut anlegen</h2>
+          <div class="grid-2">
+            <div><label for="name">Bezeichnung</label><input id="name" value="Palette" /></div>
+            <div><label for="weight">Gewicht (kg)</label><input id="weight" type="number" min="1" value="500" /></div>
+            <div><label for="length">Länge (m)</label><input id="length" type="number" step="0.1" min="0.2" value="1.2" /></div>
+            <div><label for="width">Breite (m)</label><input id="width" type="number" step="0.1" min="0.2" value="0.8" /></div>
+            <div><label for="height">Höhe (m)</label><input id="height" type="number" step="0.1" min="0.2" value="1.2" /></div>
+            <div><label for="stack">Max. stapelbar</label><input id="stack" type="number" min="1" value="2" /></div>
+          </div>
+          <label style="margin-top: 0.55rem" for="nonStackable">
+            <input id="nonStackable" type="checkbox" style="width: auto; margin-right: 0.35rem" />Nicht stapelbar
+          </label>
+          <div class="actions">
+            <button id="add">Ladegut hinzufügen</button>
+            <button class="secondary" id="fill">Mit Euro-Paletten füllen</button>
+          </div>
+          <div class="actions" style="margin-top:0.45rem;">
+            <button class="secondary" id="undo">Rückgängig</button>
+            <button class="secondary" id="reset">Planung zurücksetzen</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>3) Status</h2>
+          <div class="metrics" id="metrics"></div>
+        </section>
+
+        <section class="card">
+          <h2>Ladeeinheiten</h2>
+          <ul id="cargo-list"></ul>
+        </section>
+      </aside>
+
+      <section id="viewport">
+        <div class="canvas-wrap">
+          <canvas id="scene"></canvas>
+          <div class="hint">Steuerung: Linke Maustaste ziehen = drehen, Mausrad/Trackpad = rein- und rauszoomen.</div>
+        </div>
+      </section>
     </main>
 
     <script>
-      const SIZE = 5;
-      let board = Array.from({ length: SIZE }, () => Array(SIZE).fill(false));
-      let moves = 0;
+      const trucks = [
+        { id: 'sattel-standard', name: 'Sattelzug Standard (13,6 m)', l: 13.6, w: 2.45, h: 2.7, maxPayload: 24000 },
+        { id: 'sattel-mega', name: 'Sattelzug Mega (13,6 m / 3,0 m innen)', l: 13.6, w: 2.48, h: 3, maxPayload: 24000 },
+        { id: 'wechsler-18', name: 'Wechselbrücke 18 t', l: 7.15, w: 2.45, h: 2.6, maxPayload: 12000 },
+        { id: 'motorwagen', name: 'Motorwagen 12 t', l: 6.1, w: 2.45, h: 2.5, maxPayload: 7000 },
+      ];
 
-      const grid = document.getElementById('grid');
-      const movesEl = document.getElementById('moves');
-      const statusEl = document.getElementById('status');
-      const resetBtn = document.getElementById('reset');
+      const state = {
+        truck: trucks[0],
+        items: [],
+        placed: [],
+        view: { yaw: -0.7, pitch: 0.45, distance: 18, zoom: 1 },
+      };
 
-      function inBounds(r, c) {
-        return r >= 0 && r < SIZE && c >= 0 && c < SIZE;
+      const history = [];
+
+      const els = {
+        truck: document.getElementById('truck'),
+        name: document.getElementById('name'),
+        weight: document.getElementById('weight'),
+        length: document.getElementById('length'),
+        width: document.getElementById('width'),
+        height: document.getElementById('height'),
+        stack: document.getElementById('stack'),
+        nonStackable: document.getElementById('nonStackable'),
+        add: document.getElementById('add'),
+        fill: document.getElementById('fill'),
+        undo: document.getElementById('undo'),
+        reset: document.getElementById('reset'),
+        metrics: document.getElementById('metrics'),
+        cargoList: document.getElementById('cargo-list'),
+        canvas: document.getElementById('scene'),
+      };
+
+      const ctx = els.canvas.getContext('2d');
+
+      function cloneItems(items) {
+        return items.map((item) => ({ ...item }));
       }
 
-      function toggle(r, c) {
-        if (!inBounds(r, c)) return;
-        board[r][c] = !board[r][c];
+      function saveHistory() {
+        history.push({
+          truckId: state.truck.id,
+          items: cloneItems(state.items),
+        });
+        if (history.length > 100) history.shift();
       }
 
-      function handleCellClick(r, c) {
-        toggle(r, c);
-        toggle(r - 1, c);
-        toggle(r + 1, c);
-        toggle(r, c - 1);
-        toggle(r, c + 1);
-        moves += 1;
-        render();
-        checkWin();
-      }
-
-      function boardCleared() {
-        return board.every((row) => row.every((cell) => !cell));
-      }
-
-      function checkWin() {
-        if (boardCleared()) {
-          statusEl.textContent = `Gewonnen in ${moves} Zügen! 🎉`;
-        } else {
-          statusEl.textContent = '';
+      function restoreFromSnapshot(snapshot) {
+        const truck = trucks.find((t) => t.id === snapshot.truckId);
+        if (truck) {
+          state.truck = truck;
+          els.truck.value = truck.id;
         }
+        state.items = cloneItems(snapshot.items);
+        recomputePlan();
       }
 
-      function randomizeBoard() {
-        board = Array.from({ length: SIZE }, () =>
-          Array.from({ length: SIZE }, () => Math.random() > 0.5)
-        );
-        moves = 0;
-        statusEl.textContent = '';
+      function handleUndo() {
+        const snapshot = history.pop();
+        if (!snapshot) return;
+        restoreFromSnapshot(snapshot);
       }
 
-      function render() {
-        movesEl.textContent = String(moves);
-        grid.innerHTML = '';
-
-        board.forEach((row, r) => {
-          row.forEach((isOn, c) => {
-            const btn = document.createElement('button');
-            btn.className = `cell ${isOn ? 'on' : ''}`;
-            btn.setAttribute('aria-label', `Feld ${r + 1}, ${c + 1}`);
-            btn.addEventListener('click', () => handleCellClick(r, c));
-            grid.appendChild(btn);
-          });
+      function setupTruckSelect() {
+        els.truck.innerHTML = '';
+        trucks.forEach((truck) => {
+          const option = document.createElement('option');
+          option.value = truck.id;
+          option.textContent = truck.name;
+          els.truck.appendChild(option);
         });
       }
 
-      resetBtn.addEventListener('click', () => {
-        randomizeBoard();
-        render();
-      });
+      function collides(a, b) {
+        return (
+          Math.abs(a.x - b.x) * 2 < a.l + b.l &&
+          Math.abs(a.y - b.y) * 2 < a.h + b.h &&
+          Math.abs(a.z - b.z) * 2 < a.w + b.w
+        );
+      }
 
-      randomizeBoard();
-      render();
+      function canBePlaced(item, pos, placements, totalWeight) {
+        const { l, w, h, maxPayload } = state.truck;
+
+        if (pos.x - item.l / 2 < -l / 2 || pos.x + item.l / 2 > l / 2) return false;
+        if (pos.z - item.w / 2 < -w / 2 || pos.z + item.w / 2 > w / 2) return false;
+        if (pos.y + item.h / 2 > h) return false;
+        if (totalWeight + item.weight > maxPayload) return false;
+
+        const candidate = { ...item, ...pos };
+        if (placements.some((p) => collides(candidate, p))) return false;
+
+        if (pos.y > item.h / 2 + 0.01) {
+          const support = placements.find((p) => {
+            const top = p.y + p.h / 2;
+            return (
+              Math.abs(top - (pos.y - item.h / 2)) < 0.06 &&
+              Math.abs(p.x - pos.x) * 2 < p.l + item.l - 0.05 &&
+              Math.abs(p.z - pos.z) * 2 < p.w + item.w - 0.05
+            );
+          });
+
+          if (!support || support.nonStackable) return false;
+
+          const stackLevel = placements.filter(
+            (p) => Math.abs(p.x - support.x) < 0.05 && Math.abs(p.z - support.z) < 0.05 && p.y <= support.y
+          ).length;
+          if (stackLevel >= support.maxStack) return false;
+        }
+
+        return true;
+      }
+
+      function autoPlaceItems(items) {
+        const placements = [];
+        let totalWeight = 0;
+        const { l, w, h } = state.truck;
+
+        for (const item of [...items].sort((a, b) => b.weight - a.weight)) {
+          let placed = false;
+          const xStep = Math.max(0.2, Math.min(item.l, 0.6));
+          const zStep = Math.max(0.2, Math.min(item.w, 0.6));
+          const yStep = Math.max(0.2, Math.min(item.h, 0.6));
+
+          for (let y = item.h / 2; y <= h - item.h / 2 + 0.001 && !placed; y += yStep) {
+            for (let x = -l / 2 + item.l / 2; x <= l / 2 - item.l / 2 + 0.001 && !placed; x += xStep) {
+              for (let z = -w / 2 + item.w / 2; z <= w / 2 - item.w / 2 + 0.001 && !placed; z += zStep) {
+                const pos = { x: +x.toFixed(3), y: +y.toFixed(3), z: +z.toFixed(3) };
+                if (canBePlaced(item, pos, placements, totalWeight)) {
+                  placements.push({ ...item, ...pos });
+                  totalWeight += item.weight;
+                  placed = true;
+                }
+              }
+            }
+          }
+        }
+
+        return placements;
+      }
+
+      function formatKg(v) {
+        return `${Math.round(v).toLocaleString('de-DE')} kg`;
+      }
+
+      function updateMetrics() {
+        const usedWeight = state.placed.reduce((s, i) => s + i.weight, 0);
+        const weightRatio = usedWeight / state.truck.maxPayload;
+        const volume = state.truck.l * state.truck.w * state.truck.h;
+        const usedVolume = state.placed.reduce((s, i) => s + i.l * i.w * i.h, 0);
+        const volRatio = usedVolume / volume;
+        const notPlaced = state.items.length - state.placed.length;
+
+        els.metrics.innerHTML = `
+          <div class="pill"><span>Nutzlast</span><strong class="${weightRatio > 1 ? 'danger' : weightRatio > 0.85 ? 'warn' : 'ok'}">${formatKg(usedWeight)} / ${formatKg(state.truck.maxPayload)}</strong></div>
+          <div class="pill"><span>Volumen</span><strong class="${volRatio > 0.92 ? 'warn' : 'ok'}">${(volRatio * 100).toFixed(1)}%</strong></div>
+          <div class="pill"><span>Geladen</span><strong class="ok">${state.placed.length} / ${state.items.length}</strong></div>
+          <div class="pill"><span>Nicht platzierbar</span><strong class="${notPlaced ? 'warn' : 'ok'}">${notPlaced}</strong></div>
+        `;
+      }
+
+      function updateCargoList() {
+        els.cargoList.innerHTML = '';
+        state.items.forEach((item, idx) => {
+          const li = document.createElement('li');
+          li.textContent = `${idx + 1}. ${item.name}: ${item.l}×${item.w}×${item.h} m, ${formatKg(item.weight)}, Stapelbar: ${item.nonStackable ? 'Nein' : `bis ${item.maxStack} Ebenen`}`;
+          els.cargoList.appendChild(li);
+        });
+      }
+
+      function resizeCanvas() {
+        const ratio = window.devicePixelRatio || 1;
+        const rect = els.canvas.getBoundingClientRect();
+        els.canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+        els.canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      }
+
+      function rotatePoint(point) {
+        const { yaw, pitch } = state.view;
+        const cy = Math.cos(yaw);
+        const sy = Math.sin(yaw);
+        const cp = Math.cos(pitch);
+        const sp = Math.sin(pitch);
+
+        const x1 = point.x * cy - point.z * sy;
+        const z1 = point.x * sy + point.z * cy;
+
+        const y2 = point.y * cp - z1 * sp;
+        const z2 = point.y * sp + z1 * cp;
+
+        return { x: x1, y: y2, z: z2 };
+      }
+
+      function projectPoint(point, scale, originX, originY) {
+        const distance = state.view.distance;
+        const perspective = distance / (distance + point.z + 20);
+        return {
+          x: originX + point.x * scale * perspective,
+          y: originY - point.y * scale * perspective,
+          z: point.z,
+          perspective,
+        };
+      }
+
+      function shadeColor(hex, factor) {
+        const val = hex.replace('#', '');
+        const r = parseInt(val.slice(0, 2), 16);
+        const g = parseInt(val.slice(2, 4), 16);
+        const b = parseInt(val.slice(4, 6), 16);
+        const nr = Math.max(0, Math.min(255, Math.round(r * factor)));
+        const ng = Math.max(0, Math.min(255, Math.round(g * factor)));
+        const nb = Math.max(0, Math.min(255, Math.round(b * factor)));
+        return `rgb(${nr} ${ng} ${nb})`;
+      }
+
+      function createBoxFaces(item, color) {
+        const cx = item.x;
+        const cy = item.y;
+        const cz = item.z;
+        const lx = item.l / 2;
+        const hy = item.h / 2;
+        const wz = item.w / 2;
+
+        const v = [
+          { x: cx - lx, y: cy - hy, z: cz - wz },
+          { x: cx + lx, y: cy - hy, z: cz - wz },
+          { x: cx + lx, y: cy + hy, z: cz - wz },
+          { x: cx - lx, y: cy + hy, z: cz - wz },
+          { x: cx - lx, y: cy - hy, z: cz + wz },
+          { x: cx + lx, y: cy - hy, z: cz + wz },
+          { x: cx + lx, y: cy + hy, z: cz + wz },
+          { x: cx - lx, y: cy + hy, z: cz + wz },
+        ];
+
+        return [
+          { idx: [0, 1, 2, 3], color: shadeColor(color, 0.9) },
+          { idx: [4, 5, 6, 7], color: shadeColor(color, 1.1) },
+          { idx: [0, 4, 7, 3], color: shadeColor(color, 0.8) },
+          { idx: [1, 5, 6, 2], color: shadeColor(color, 0.75) },
+          { idx: [3, 2, 6, 7], color: shadeColor(color, 1.0) },
+          { idx: [0, 1, 5, 4], color: shadeColor(color, 0.65) },
+        ].map((face) => ({ ...face, v }));
+      }
+
+      function drawFace(points, fillStyle, strokeStyle = 'rgba(15 23 42 / 0.7)') {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y);
+        ctx.closePath();
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      function drawScene() {
+        const width = els.canvas.clientWidth;
+        const height = els.canvas.clientHeight;
+        ctx.clearRect(0, 0, width, height);
+
+        const baseScale = Math.min((width * 0.55) / state.truck.l, (height * 0.6) / state.truck.h, 120);
+        const scale = baseScale * state.view.zoom;
+        const originX = width * 0.5;
+        const originY = height * 0.68;
+
+        const truckBox = { x: 0, y: state.truck.h / 2, z: 0, l: state.truck.l, h: state.truck.h, w: state.truck.w };
+        const paintList = [];
+
+        createBoxFaces(truckBox, '#3b82f6').forEach((face) => {
+          const points3D = face.idx.map((i) => rotatePoint(face.v[i]));
+          const cross = (points3D[1].x - points3D[0].x) * (points3D[2].y - points3D[0].y) - (points3D[1].y - points3D[0].y) * (points3D[2].x - points3D[0].x);
+          if (cross < 0) return;
+          const points2D = points3D.map((p) => projectPoint(p, scale, originX, originY));
+          const depth = points3D.reduce((s, p) => s + p.z, 0) / points3D.length;
+          paintList.push({ points2D, depth, color: face.color, alpha: 0.13 });
+        });
+
+        const palette = ['#22c55e', '#f97316', '#8b5cf6', '#06b6d4', '#f43f5e', '#eab308'];
+
+        state.placed.forEach((item, index) => {
+          createBoxFaces(item, palette[index % palette.length]).forEach((face) => {
+            const points3D = face.idx.map((i) => rotatePoint(face.v[i]));
+            const cross = (points3D[1].x - points3D[0].x) * (points3D[2].y - points3D[0].y) - (points3D[1].y - points3D[0].y) * (points3D[2].x - points3D[0].x);
+            if (cross < 0) return;
+            const points2D = points3D.map((p) => projectPoint(p, scale, originX, originY));
+            const depth = points3D.reduce((s, p) => s + p.z, 0) / points3D.length;
+            paintList.push({ points2D, depth, color: face.color, alpha: 1 });
+          });
+        });
+
+        paintList.sort((a, b) => a.depth - b.depth);
+        paintList.forEach((face) => {
+          const fill = face.color.startsWith('rgb') ? face.color : face.color;
+          ctx.save();
+          ctx.globalAlpha = face.alpha;
+          drawFace(face.points2D, fill);
+          ctx.restore();
+        });
+
+        ctx.fillStyle = '#bfdbfe';
+        ctx.font = '600 14px Inter, sans-serif';
+        ctx.fillText(state.truck.name, 20, 28);
+        ctx.fillText(`Laderaum: ${state.truck.l} × ${state.truck.w} × ${state.truck.h} m`, 20, 50);
+      }
+
+      function recomputePlan() {
+        state.placed = autoPlaceItems(state.items);
+        updateMetrics();
+        updateCargoList();
+        drawScene();
+      }
+
+      function readItemForm() {
+        const item = {
+          name: els.name.value.trim() || 'Ladegut',
+          weight: Number(els.weight.value),
+          l: Number(els.length.value),
+          w: Number(els.width.value),
+          h: Number(els.height.value),
+          maxStack: Math.max(1, Number(els.stack.value || 1)),
+          nonStackable: els.nonStackable.checked,
+        };
+
+        if ([item.weight, item.l, item.w, item.h].some((v) => !Number.isFinite(v) || v <= 0)) {
+          window.alert('Bitte gültige positive Zahlen eingeben.');
+          return null;
+        }
+        return item;
+      }
+
+      function setTruckById(id) {
+        const truck = trucks.find((t) => t.id === id);
+        if (!truck) return;
+        state.truck = truck;
+        recomputePlan();
+      }
+
+      function bindViewDrag() {
+        const drag = { active: false, x: 0, y: 0 };
+
+        els.canvas.addEventListener('mousedown', (event) => {
+          drag.active = true;
+          drag.x = event.clientX;
+          drag.y = event.clientY;
+        });
+
+        window.addEventListener('mouseup', () => {
+          drag.active = false;
+        });
+
+        window.addEventListener('mousemove', (event) => {
+          if (!drag.active) return;
+          const dx = event.clientX - drag.x;
+          const dy = event.clientY - drag.y;
+          drag.x = event.clientX;
+          drag.y = event.clientY;
+
+          state.view.yaw += dx * 0.01;
+          state.view.pitch = Math.max(-1.3, Math.min(1.3, state.view.pitch + dy * 0.01));
+          drawScene();
+        });
+      }
+
+      function bindZoom() {
+        els.canvas.addEventListener('wheel', (event) => {
+          event.preventDefault();
+          const zoomFactor = event.deltaY < 0 ? 1.08 : 0.92;
+          state.view.zoom = Math.max(0.45, Math.min(2.8, state.view.zoom * zoomFactor));
+          drawScene();
+        }, { passive: false });
+      }
+
+      function bindEvents() {
+        els.truck.addEventListener('change', (event) => {
+          saveHistory();
+          setTruckById(event.target.value);
+        });
+
+        els.add.addEventListener('click', () => {
+          const item = readItemForm();
+          if (!item) return;
+          saveHistory();
+          state.items.push(item);
+          recomputePlan();
+        });
+
+        els.fill.addEventListener('click', () => {
+          saveHistory();
+          const euro = { name: 'Euro-Palette', weight: 550, l: 1.2, w: 0.8, h: 1.25, maxStack: 2, nonStackable: false };
+          state.items = Array.from({ length: 34 }, () => ({ ...euro }));
+          recomputePlan();
+        });
+
+        els.reset.addEventListener('click', () => {
+          saveHistory();
+          state.items = [];
+          recomputePlan();
+        });
+
+        els.undo.addEventListener('click', handleUndo);
+
+        window.addEventListener('resize', () => {
+          resizeCanvas();
+          drawScene();
+        });
+      }
+
+      setupTruckSelect();
+      bindEvents();
+      bindViewDrag();
+      bindZoom();
+      els.truck.value = trucks[0].id;
+      resizeCanvas();
+      setTruckById(trucks[0].id);
     </script>
   </body>
 </html>

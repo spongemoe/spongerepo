@@ -1,35 +1,34 @@
-# Lichter Aus (Mac-kompatibles Mini-Spiel)
+# Webbasierte 3D-Laderaumplanungssoftware
 
-Ein sehr einfaches Logikspiel, das auf macOS ohne zusätzliche Installation funktioniert:
+Eine einfache, browserbasierte Anwendung zur Planung von LKW-Beladungen mit integrierter 3D-Vorschau direkt in `index.html`.
 
-- Datei `index.html` im Browser öffnen (Safari, Chrome, Firefox).
-- Klicke auf ein Feld, um es und die direkten Nachbarn umzuschalten.
-- Ziel: **Alle Lichter ausschalten**.
+## Funktionen
+
+- **LKW-Auswahl im Dropdown** für mehrere gängige Fahrzeugtypen.
+- **Ladegut-Erfassung** mit Maßen, Gewicht und Stapelregeln.
+- **Automatische Beladungsprüfung** auf:
+  - Gewichtsgrenzen (Nutzlast),
+  - Kollisionsfreiheit,
+  - Laderaumgrenzen,
+  - Stapelbarkeit/Nicht-Stapelbarkeit.
+- **Geschlossene Pakete in der Vorschau** (vollflächig gezeichnete Boxen).
+- **Per Maus-Drag frei drehbare 3D-Ansicht** mit **Zoom per Mausrad/Trackpad**, damit die Beladung von allen Seiten geprüft werden kann.
+- **Rückgängig-Button** für die letzten Planungsschritte.
+- **Live-Kennzahlen** zu Gewicht, Volumenauslastung und nicht platzierbaren Einheiten.
 
 ## Starten
-
-### Option 1 (am einfachsten)
-- `index.html` per Doppelklick öffnen.
-
-### Option 2 (lokaler Webserver)
-Im Projektordner ausführen:
 
 ```bash
 cd /workspace/spongerepo
 python3 -m http.server 8000
 ```
+Dann öffnen: `http://localhost:8000/`
 
-Dann im Browser öffnen:
-- `http://localhost:8000/`
+## Bedienung
 
-## Wenn „Not Found“ angezeigt wird
-Das passiert fast immer aus einem dieser Gründe:
-
-1. Der Server wurde **im falschen Ordner** gestartet.
-   - Lösung: Vorher in den Ordner wechseln, in dem `index.html` liegt (`cd /workspace/spongerepo`).
-
-2. Es wurde eine **falsche URL** geöffnet.
-   - Lösung: `http://localhost:8000/` oder direkt `http://localhost:8000/index.html` aufrufen.
-
-3. Der Server läuft nicht (mehr).
-   - Lösung: Terminal prüfen und den Server erneut starten.
+1. LKW im Dropdown auswählen.
+2. Maße/Gewicht/Stapelregel eingeben.
+3. Auf **„Ladegut hinzufügen“** klicken.
+4. Mit gedrückter linker Maustaste in der Vorschau ziehen, um die Beladung zu drehen.
+5. Mit Mausrad/Trackpad in die Vorschau hinein- und herauszoomen.
+6. Bei Bedarf über **„Rückgängig“** den letzten Schritt zurücknehmen.
