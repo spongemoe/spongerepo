@@ -3,195 +3,364 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lichter Aus – Mini-Logikspiel</title>
+    <title>Siegfried Urban MAFO Service | Markt- und Sozialforschung</title>
+    <meta
+      name="description"
+      content="Siegfried Urban MAFO Service begleitet Projekte in der Markt- und Sozialforschung mit Erfahrung, Präzision und persönlicher Beratung."
+    />
     <style>
       :root {
-        color-scheme: light dark;
-        --bg: #111827;
-        --panel: #1f2937;
-        --accent: #22c55e;
-        --off: #334155;
-        --text: #f8fafc;
+        --bg: #0b1020;
+        --bg-soft: #111833;
+        --card: rgba(17, 24, 51, 0.72);
+        --primary: #5eead4;
+        --primary-strong: #2dd4bf;
+        --text: #e6edff;
+        --muted: #a6b3d6;
+        --border: rgba(255, 255, 255, 0.14);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
       }
 
       body {
         margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: radial-gradient(circle at top, #1e3a8a 0%, var(--bg) 50%);
+        font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+        background:
+          radial-gradient(circle at 85% 10%, #1f3568 0%, transparent 35%),
+          radial-gradient(circle at 10% 20%, #1f4f5d 0%, transparent 28%),
+          linear-gradient(170deg, #0a0f1f 0%, var(--bg) 55%, #090d1a 100%);
         color: var(--text);
+        line-height: 1.6;
       }
 
-      .game {
-        width: min(92vw, 460px);
-        background: color-mix(in oklab, var(--panel), #000 10%);
-        border: 1px solid #334155;
-        border-radius: 16px;
-        padding: 1rem 1rem 1.25rem;
-        box-shadow: 0 20px 45px rgb(0 0 0 / 30%);
+      .container {
+        width: min(1100px, 92vw);
+        margin: 0 auto;
       }
 
-      h1 {
-        margin: 0;
-        font-size: 1.25rem;
-        text-align: center;
+      header {
+        position: sticky;
+        top: 0;
+        backdrop-filter: blur(10px);
+        background: rgba(10, 14, 29, 0.7);
+        border-bottom: 1px solid var(--border);
+        z-index: 20;
       }
 
-      p {
-        margin: 0.75rem 0 0.5rem;
-        text-align: center;
-        line-height: 1.35;
-      }
-
-      .hud {
-        margin-top: 0.8rem;
+      .nav {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.9rem 0;
+      }
+
+      .brand {
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+
+      .brand span {
+        color: var(--primary);
+      }
+
+      nav ul {
+        display: flex;
+        list-style: none;
+        gap: 1.1rem;
+        padding: 0;
+        margin: 0;
+      }
+
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
         font-size: 0.95rem;
       }
 
-      button {
-        border: none;
-        border-radius: 10px;
-        padding: 0.55rem 0.9rem;
-        background: #3b82f6;
-        color: white;
-        font-weight: 600;
-        cursor: pointer;
+      nav a:hover {
+        color: var(--text);
       }
 
-      button:hover {
-        filter: brightness(1.08);
+      .hero {
+        padding: 5.5rem 0 3.5rem;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border: 1px solid rgba(94, 234, 212, 0.45);
+        border-radius: 999px;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+
+      h1 {
+        margin: 0.9rem 0 1rem;
+        font-size: clamp(2rem, 4vw, 3.3rem);
+        line-height: 1.15;
+      }
+
+      .lead {
+        color: var(--muted);
+        max-width: 50ch;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.5rem;
+      }
+
+      .btn {
+        display: inline-block;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1.15rem;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+        color: #032a2b;
+      }
+
+      .btn-secondary {
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+
+      .hero-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1.3rem;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+      }
+
+      .hero-card h2 {
+        margin-top: 0;
+        font-size: 1.1rem;
+      }
+
+      section {
+        padding: 1.5rem 0 3.2rem;
+      }
+
+      .section-title {
+        margin-bottom: 1.2rem;
+      }
+
+      .section-title h2 {
+        margin: 0;
+        font-size: 1.6rem;
+      }
+
+      .section-title p {
+        margin: 0.55rem 0 0;
+        color: var(--muted);
       }
 
       .grid {
-        margin: 1rem auto;
-        width: fit-content;
         display: grid;
-        grid-template-columns: repeat(5, 56px);
-        grid-template-rows: repeat(5, 56px);
-        gap: 8px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
       }
 
-      .cell {
-        width: 56px;
-        height: 56px;
-        border-radius: 10px;
-        border: 1px solid #475569;
-        background: var(--off);
-        box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
-        transition: transform 0.07s ease, background 0.18s ease;
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 0.95rem;
+        padding: 1.1rem;
       }
 
-      .cell.on {
-        background: var(--accent);
-        box-shadow: 0 0 12px rgb(34 197 94 / 55%), inset 0 0 10px rgb(255 255 255 / 15%);
+      .card h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.05rem;
       }
 
-      .cell:active {
-        transform: scale(0.96);
+      .card p,
+      .card li {
+        color: var(--muted);
       }
 
-      .status {
-        text-align: center;
-        font-weight: 600;
-        min-height: 1.3rem;
+      .process {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.9rem;
+      }
+
+      .step {
+        background: var(--bg-soft);
+        border: 1px solid var(--border);
+        border-radius: 0.8rem;
+        padding: 1rem;
+      }
+
+      .step strong {
+        color: var(--primary);
+      }
+
+      .contact {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: center;
+        background: linear-gradient(135deg, rgba(45, 212, 191, 0.17), rgba(15, 23, 42, 0.35));
+        border: 1px solid rgba(94, 234, 212, 0.35);
+        border-radius: 1rem;
+        padding: 1.3rem;
+      }
+
+      footer {
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        padding: 1.2rem 0 2rem;
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .grid,
+        .process,
+        .contact {
+          grid-template-columns: 1fr;
+        }
+
+        nav ul {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
-    <main class="game">
-      <h1>Lichter Aus</h1>
-      <p>
-        Klicke auf ein Feld, um es und die direkten Nachbarn umzuschalten. Ziel:
-        Alle Lichter ausschalten.
-      </p>
-
-      <div class="hud">
-        <span>Züge: <strong id="moves">0</strong></span>
-        <button id="reset">Neu starten</button>
+    <header>
+      <div class="container nav">
+        <div class="brand">Siegfried Urban <span>MAFO Service</span></div>
+        <nav aria-label="Hauptnavigation">
+          <ul>
+            <li><a href="#leistungen">Leistungen</a></li>
+            <li><a href="#ablauf">Ablauf</a></li>
+            <li><a href="#profil">Profil</a></li>
+            <li><a href="#kontakt">Kontakt</a></li>
+          </ul>
+        </nav>
       </div>
+    </header>
 
-      <section class="grid" id="grid" aria-label="Spielfeld"></section>
-      <p class="status" id="status" role="status" aria-live="polite"></p>
+    <main class="container">
+      <section class="hero" id="start">
+        <div>
+          <span class="badge">Markt- &amp; Sozialforschung</span>
+          <h1>Fundierte Einblicke für bessere Entscheidungen.</h1>
+          <p class="lead">
+            Siegfried Urban MAFO Service unterstützt Unternehmen und Institutionen bei der
+            Planung, Durchführung und Auswertung von Forschungsprojekten – zuverlässig,
+            praxisnah und mit persönlicher Begleitung.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#kontakt">Projekt anfragen</a>
+            <a class="btn btn-secondary" href="#leistungen">Mehr erfahren</a>
+          </div>
+        </div>
+
+        <aside class="hero-card" aria-label="Leistungsüberblick">
+          <h2>Ihr Vorteil mit MAFO Service</h2>
+          <ul>
+            <li>Individuell abgestimmte Forschungsdesigns</li>
+            <li>Verständliche Ergebnisse statt reiner Datensätze</li>
+            <li>Effiziente Durchführung mit klaren Ansprechpartnern</li>
+            <li>Praxisorientierte Handlungsempfehlungen</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section id="leistungen">
+        <div class="section-title">
+          <h2>Leistungsbereiche</h2>
+          <p>Von der Fragestellung bis zur Umsetzung – alles aus einer Hand.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Beratung &amp; Konzeption</h3>
+            <p>
+              Zieldefinition, Methodenauswahl und Studienkonzeption für belastbare Ergebnisse.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Datenerhebung</h3>
+            <p>
+              Planung und Umsetzung quantitativer sowie qualitativer Erhebungen entlang Ihrer
+              Zielgruppen.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Auswertung &amp; Reporting</h3>
+            <p>
+              Präzise Analysen mit klarer Visualisierung, verständlichen Berichten und konkreten
+              Empfehlungen.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="ablauf">
+        <div class="section-title">
+          <h2>Typischer Projektablauf</h2>
+          <p>Transparent, strukturiert und eng auf Ihre Ziele abgestimmt.</p>
+        </div>
+        <div class="process">
+          <article class="step"><strong>1.</strong> Briefing und Zielklärung</article>
+          <article class="step"><strong>2.</strong> Methodik und Studiendesign</article>
+          <article class="step"><strong>3.</strong> Feldphase und Qualitätssicherung</article>
+          <article class="step"><strong>4.</strong> Analyse, Ergebnispräsentation und Empfehlungen</article>
+        </div>
+      </section>
+
+      <section id="profil">
+        <div class="section-title">
+          <h2>Über Siegfried Urban MAFO Service</h2>
+          <p>
+            Der Fokus liegt auf belastbarer Forschung mit persönlicher Betreuung: kurze Wege,
+            klare Kommunikation und Ergebnisse, die im Alltag funktionieren.
+          </p>
+        </div>
+      </section>
+
+      <section id="kontakt">
+        <div class="contact">
+          <div>
+            <h2>Kontakt aufnehmen</h2>
+            <p>
+              Sie möchten ein Forschungsprojekt starten oder ein bestehendes Vorhaben
+              weiterentwickeln? Ich freue mich auf Ihre Anfrage.
+            </p>
+          </div>
+          <a class="btn btn-primary" href="mailto:kontakt@siegfried-urban-mafo-service.de"
+            >E-Mail senden</a
+          >
+        </div>
+      </section>
     </main>
 
+    <footer>
+      <div class="container">© <span id="year"></span> Siegfried Urban MAFO Service</div>
+    </footer>
+
     <script>
-      const SIZE = 5;
-      let board = Array.from({ length: SIZE }, () => Array(SIZE).fill(false));
-      let moves = 0;
-
-      const grid = document.getElementById('grid');
-      const movesEl = document.getElementById('moves');
-      const statusEl = document.getElementById('status');
-      const resetBtn = document.getElementById('reset');
-
-      function inBounds(r, c) {
-        return r >= 0 && r < SIZE && c >= 0 && c < SIZE;
-      }
-
-      function toggle(r, c) {
-        if (!inBounds(r, c)) return;
-        board[r][c] = !board[r][c];
-      }
-
-      function handleCellClick(r, c) {
-        toggle(r, c);
-        toggle(r - 1, c);
-        toggle(r + 1, c);
-        toggle(r, c - 1);
-        toggle(r, c + 1);
-        moves += 1;
-        render();
-        checkWin();
-      }
-
-      function boardCleared() {
-        return board.every((row) => row.every((cell) => !cell));
-      }
-
-      function checkWin() {
-        if (boardCleared()) {
-          statusEl.textContent = `Gewonnen in ${moves} Zügen! 🎉`;
-        } else {
-          statusEl.textContent = '';
-        }
-      }
-
-      function randomizeBoard() {
-        board = Array.from({ length: SIZE }, () =>
-          Array.from({ length: SIZE }, () => Math.random() > 0.5)
-        );
-        moves = 0;
-        statusEl.textContent = '';
-      }
-
-      function render() {
-        movesEl.textContent = String(moves);
-        grid.innerHTML = '';
-
-        board.forEach((row, r) => {
-          row.forEach((isOn, c) => {
-            const btn = document.createElement('button');
-            btn.className = `cell ${isOn ? 'on' : ''}`;
-            btn.setAttribute('aria-label', `Feld ${r + 1}, ${c + 1}`);
-            btn.addEventListener('click', () => handleCellClick(r, c));
-            grid.appendChild(btn);
-          });
-        });
-      }
-
-      resetBtn.addEventListener('click', () => {
-        randomizeBoard();
-        render();
-      });
-
-      randomizeBoard();
-      render();
+      document.getElementById('year').textContent = new Date().getFullYear();
     </script>
   </body>
 </html>
